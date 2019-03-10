@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WindowsFormsApp;
 
 namespace space1
 {
@@ -11,6 +12,7 @@ namespace space1
     {
         static void Main(String [] args)
         {
+            GUI.StartGUI();
             ReadFile rf = new ReadFile();
             rf.Read_file();
             Topo tp = new Topo();
@@ -35,7 +37,10 @@ namespace space1
             string line;
             string word2store = "";
             readPath = Console.ReadLine(); //读入文件
-            System.IO.StreamReader sr = new System.IO.StreamReader(readPath); //创建读入流
+
+            //*** 这里要判断文件不存在异常 ***//
+            System.IO.StreamReader sr = new StreamReader(readPath); //创建读入流
+
             while ((line = sr.ReadLine()) != null) //读入文件
             {
                 //Console.WriteLine(line);
