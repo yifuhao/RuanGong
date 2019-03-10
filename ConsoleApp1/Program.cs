@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Text.RegularExpressions; //正则表达式
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,76 +9,16 @@ namespace space1
 {
     class main
     {
-        private static string[] getCommand()
-        {
-            string RexStr = "[-r ]?[-h a-z ]?[-t a-z ]?-w|-c .*"; //匹配的正则表达式
-            string command = Console.ReadLine();
-            Regex spl_reg = new Regex(" "); //通过空格符来分割
-            string[] str = spl_reg.Split(command);
-            string[] str2return = new string[5];
-            int rCount = 0, hCount = 0, tCount = 0, wcCount = 0, i = 0;
-
-            str2return[1] = "#";
-            str2return[2] = "#";
-
-            if (!Regex.IsMatch(command, RexStr)) //如果匹配正则表达式则继续，否则报错并结束程序
-            {
-                Console.WriteLine("命令输入不规范");
-                System.Environment.Exit(0);
-            }
-
-            str2return[0] = str[0] == "-r"?"a":"b";
-            
-            for (i=0; i<str.Count(); i++)
-            {
-                if (str[i] == "-r")
-                {
-                    rCount++;
-                }
-
-                if (str[i] == "-h")
-                {
-                    hCount++;
-                    str2return[1] = str[i + 1];
-                }
-
-                if (str[i] == "-t")
-                {
-                    tCount++;
-                    str2return[2] = str[i + 1];
-                }
-
-                if(str[i] == "-w" || str[i] == "-c")
-                {
-                    wcCount++;
-                    str2return[3] = str[i];
-                    if(i != str.Count() - 2) //
-                    {
-                        Console.WriteLine("命令输入不规范");
-                        System.Environment.Exit(0);
-                    }
-                }
-            }
-
-            str2return[4] = str[i-1];
-            
-            /*foreach(string item in str2return)
-            {
-                Console.WriteLine(item);
-            }*/
-
-            return str2return; 
-        }
-
-
         static void Main(String [] args)
         {
-            string []command = getCommand();
             ReadFile rf = new ReadFile();
-            rf.Read_file(command[4]);
-            Word.setWeightChosen(command[3][1]); //设置wc
+            rf.Read_file();
             Topo tp = new Topo();
-            tp.run(command[1][0], command[2][0]); //头尾和权重
+            tp.initialDegreeGraph();
+            tp.setDegreeArray();
+            tp.topoloSort();
+            tp.buildChain('#');
+            tp.printDistance();
         }
     }
 
@@ -91,13 +30,12 @@ namespace space1
         static string readPath = null;
         private const int size = 26;
 
-        public void Read_file(string path_input)
+        public void Read_file()
         {
             string line;
             string word2store = "";
-            readPath = path_input; //读入文件
+            readPath = Console.ReadLine(); //读入文件
             System.IO.StreamReader sr = new System.IO.StreamReader(readPath); //创建读入流
-
             while ((line = sr.ReadLine()) != null) //读入文件
             {
                 //Console.WriteLine(line);
@@ -136,7 +74,7 @@ namespace space1
             setIndexOfAllLetter();
             setEndOfAllLetter();
 
-            /*foreach(int i in indexOfAllLetter)
+            foreach(int i in indexOfAllLetter)
             {
                 Console.WriteLine(i);
             }
@@ -144,7 +82,7 @@ namespace space1
             foreach(Word w in wordList)
             {
                 Console.WriteLine(w);
-            }*/
+            }
             //Console.ReadKey();
         }
 
@@ -154,13 +92,12 @@ namespace space1
             for (int i=0; i<size-1; i++)
             {
                 a = i;
-                while (i+1<size && indexOfAllLetter[i + 1] == -1)
+                while (indexOfAllLetter[i + 1] == -1)
                 {
                     i++;
                     endOfAllLeter[i] = -1;
                 }
-                if(i + 1 < size)
-                    endOfAllLeter[a] = indexOfAllLetter[i + 1];
+                endOfAllLeter[a] = indexOfAllLetter[i + 1];
             }
             endOfAllLeter[size - 1] = wordList.Count;
         }
@@ -293,28 +230,25 @@ namespace space1
         private char head;
         private char tail;
         private string allWord;
-        private static int weightChosen = 0; //0代表w，1代表c
+        private int weight;
+
 
         public Word(string str) //构造方法
         {
             this.allWord = str;
             this.head = str[0];
             this.tail = str[str.Length - 1];
+            this.weight = 1; //-w
         }
-        
-        public static void setWeightChosen(char cc)
+
+        public void setWeight_c() //将权值设为单词长，即-c
         {
-            if (cc == 'c')
-            {
-                weightChosen = 1;
-                Console.WriteLine(weightChosen);
-            }
+            this.weight = this.allWord.Length;
         }
 
         public int getWeight()
         {
-            if (weightChosen == 0) return 1;
-            return this.allWord.Length;
+            return this.weight;
         }
 
         public char Get_tail()
@@ -341,47 +275,18 @@ namespace space1
 
     class WordChain
     {
-        private List<Word> wordChain;
+        public List<Word> wordChain;
+        private int size;
         private int weight;
-        private static char word2end; //结束条件，头是尾不是则停止
 
         public WordChain()
         {
-            this.weight = 0;
-            this.wordChain = new List<Word>();
-        }
 
-        public static bool buildEnd(char wHead, char wTail) //判断是否应该停止成环
-        {
-            if (word2end == wHead && word2end != wTail) return true;
-            return false;
-        }
-
-        public void copyChain(WordChain wchain)
-        {
-            this.weight = wchain.weight;
-            this.wordChain = new List<Word>(wchain.GetWordChain().ToArray());
-        }
-
-        public char getWord2End()
-        {
-            return word2end;
-        }
-
-        public static void setWord2End(char w2end)
-        {
-            word2end = w2end;
-        }
-
-        public List<Word> GetWordChain()
-        {
-            return this.wordChain;
         }
 
         public void addWord(Word w)
         {
             this.wordChain.Add(w);
-            this.weight += w.getWeight(); //更新权重
         }
 
         public int getWeight()
@@ -391,16 +296,7 @@ namespace space1
 
         public int getSize()
         {
-            return this.wordChain.Count;
-        }
-
-        public void printChain()
-        {
-            foreach(Word w in wordChain)
-            {
-                Console.Write(w+" ");
-            }
-            Console.WriteLine();
+            return this.size;
         }
     }
 
@@ -412,18 +308,6 @@ namespace space1
         public static int[] degreeArray = new int[size]; //每个点的入度
         private static int[] distance = new int[size]; //每个点到起点的距离， 0-25分别代表a-z
         private static int[] selfCircle = new int[size]; //判断自环的个数
-        private static WordChain[] wordChainList = new WordChain[size]; //到达每个点权重最大的路线
-
-        public void run(char wHead, char wTail)
-        {
-            WordChain.setWord2End(wTail);
-            this.initialDegreeGraph();
-            this.setDegreeArray();
-            this.topoloSort();
-            this.buildChain(wHead);
-            this.printDistance();
-        }
-
 
         public void initialDegreeGraph()
         {
@@ -431,7 +315,6 @@ namespace space1
             {
                 degreeArray[i] = -1;
                 selfCircle[i] = 0;
-                wordChainList[i] = new WordChain();
             }
 
             foreach (Word w in ReadFile.wordList)
@@ -481,7 +364,7 @@ namespace space1
                         degreeArray[k]--;
             }
 
-            judgeCircle(); 
+            judgeCircle();
             for(int i=0; i<topoList.Count; i++)
             {
                 Console.Write(topoList[i]+" ");
@@ -490,7 +373,7 @@ namespace space1
 
         }
 
-        public void judgeCircle() //判断当前topo序列是否存在环，存在则报错
+        public void judgeCircle()
         {
             for (int i = 0; i < size; i++)
             {
@@ -506,10 +389,10 @@ namespace space1
         {
             for (int i = 0; i < size; i++) //将每个点到源点的距离标为负无穷
                 distance[i] = MINI;
-            if (headLetter == '#') distance[topoList[0]-'a'] = 0; //这里应该有问题
+            if (headLetter == '#') distance[topoList[0]-'a'] = 0;
             else distance[headLetter - 'a'] = 0;
 
-            while (topoList.Count != 0) //当前拓扑序列非空（在指定起点的情况下，是否需要把之前的全清空）
+            while (topoList.Count != 0) //当前拓扑序列非空
             {
                 //取出拓扑序列的第一个点
                 char u = topoList[0];
@@ -521,21 +404,9 @@ namespace space1
                     for (int i=ReadFile.indexOfAllLetter[u-'a']; i < ReadFile.endOfAllLeter[u - 'a']; i++)
                     {
                         Word w = ReadFile.wordList[i];
-                        
                         if (distance[w.Get_tail() - 'a'] < (distance[w.Get_head() - 'a'] + w.getWeight()))
                         {
-                            if (WordChain.buildEnd(w.Get_head(), w.Get_tail())) //这个函数在括号内还是括号外，一个问题
-                            {
-                                //将拓扑序列清空，停止循环
-                                topoList.Clear();
-                                break;
-                            }
-
                             distance[w.Get_tail() - 'a'] = (distance[w.Get_head() - 'a'] + w.getWeight()); //更新距离
-
-                            //更新链
-                            wordChainList[w.Get_tail() - 'a'].copyChain(wordChainList[w.Get_head() - 'a']);
-                            wordChainList[w.Get_tail() - 'a'].addWord(w);
                         }
 
                     }
@@ -550,9 +421,11 @@ namespace space1
             for(int i=0; i<size; i++)
             {
                 Console.Write(distance[i] + " ");
-                wordChainList[i].printChain(); //输出链
+
             }
         }
 
     }
+
+
 }
