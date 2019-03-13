@@ -28,7 +28,6 @@ namespace space1
                 System.Environment.Exit(0);
             }
 
-            str2return[0] = str[0] == "-r"?"a":"b";
             str2return[0] = str[0] == "-r" ? "a" : "b";
 
             for (i = 0; i < str.Count(); i++)
@@ -643,7 +642,7 @@ namespace space1
             else
             {
                 int num_l = 0, num_ml = 0;
-                foreach(Word w in list)
+                foreach (Word w in list)
                 {
                     num_l += w.Get_allWord().Length;
                 }
