@@ -128,6 +128,9 @@ namespace WindowsFormsApp
                 + " " + b_t.ToString() + " " + b_r.ToString() + " " + char_h + " " + char_t;
         }
 
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
 
+        }
     }
 }
