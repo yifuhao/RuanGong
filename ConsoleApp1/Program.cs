@@ -311,7 +311,7 @@ namespace space1
         static string writePath = null;
     }
 
-    class Word
+    public class Word
     {
         private char head;
         private char tail;
@@ -362,11 +362,11 @@ namespace space1
 
     }
 
-    class WordChain
+    public class WordChain
     {
-        private List<Word> wordChain;
-        private int weight;
-        private static char word2end; //结束条件，头是尾不是则停止，可以是'#'
+        public List<Word> wordChain;
+        public int weight;
+        public static char word2end; //结束条件，头是尾不是则停止，可以是'#'
 
         public WordChain()
         {
