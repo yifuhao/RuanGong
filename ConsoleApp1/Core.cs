@@ -16,11 +16,11 @@ namespace ConsoleApp1
             rf.buildWordList(strList);
             if (wc == 'c')
             {
-                return build_chain_word(strList, 0, strList, head, tail, enable_loop);
+                return build_chain_char(strList, 0, strList, head, tail, enable_loop);
             }
             else
             {
-                return build_chain_char(strList, 0, strList, head, tail, enable_loop);
+                return build_chain_word(strList, 0, strList, head, tail, enable_loop);
             }
         }
 

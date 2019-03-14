@@ -121,6 +121,9 @@ namespace WindowsFormsApp
                 textBox5.Text = "ERROR : NO INPUT !";
                 return;
             }
+            //确定char_h char_t
+            if (!b_h) { char_h = '#'; }
+            if(!b_t) { char_t = '#'; }
             //调用ConsoleApp1项目内对应接口实现
             textOutput = "";
             char c_wc = b_w ? 'w' : 'c';
