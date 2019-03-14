@@ -630,7 +630,11 @@ namespace space1
             {
                 //如果对尾字母没有要求, 或有要求并且list也满足，那么直接比较
                 //否则List无法成为满足要求的最长链
-                if (c_t == '#' || c_t == list.Last().Get_tail())
+                if (list.Count == 0)
+                {
+                    return;
+                }
+                else if (c_t == '#' || c_t == list.Last().Get_tail())
                 {
                     if (list.Count > maxlist.Count)
                     {
@@ -653,7 +657,11 @@ namespace space1
                 }
                 //如果对尾字母没有要求, 或有要求并且list也满足，那么直接比较
                 //否则List无法成为满足要求的最长链
-                if (c_t == '#' || c_t == list.Last().Get_tail())
+                if (list.Count == 0)
+                {
+                    return;
+                }
+                else if (c_t == '#' || c_t == list.Last().Get_tail())
                 {
                     if (num_l > num_ml)
                     {
