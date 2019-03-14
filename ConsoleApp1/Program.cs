@@ -28,9 +28,9 @@ namespace space1
                 System.Environment.Exit(0);
             }
 
-            str2return[0] = str[0] == "-r"?"a":"b";
-            
-            for (i=0; i<str.Count(); i++)
+            str2return[0] = str[0] == "-r" ? "a" : "b";
+
+            for (i = 0; i < str.Count(); i++)
             {
                 if (str[i] == "-r")
                 {
@@ -49,11 +49,11 @@ namespace space1
                     str2return[2] = str[i + 1];
                 }
 
-                if(str[i] == "-w" || str[i] == "-c")
+                if (str[i] == "-w" || str[i] == "-c")
                 {
                     wcCount++;
                     str2return[3] = str[i];
-                    if(i != str.Count() - 2) //
+                    if (i != str.Count() - 2) //
                     {
                         Console.WriteLine("命令输入不规范");
                         System.Environment.Exit(0);
@@ -61,20 +61,20 @@ namespace space1
                 }
             }
 
-            str2return[4] = str[i-1];
-            
+            str2return[4] = str[i - 1];
+
             /*foreach(string item in str2return)
             {
                 Console.WriteLine(item);
             }*/
 
-            return str2return; 
+            return str2return;
         }
 
 
-        static void Main(String [] args)
+        static void Main(String[] args)
         {
-            string []command = getCommand();
+            string[] command = getCommand();
             ReadFile rf = new ReadFile();
             rf.run(command[4]);
             Word.setWeightChosen(command[3][1]); //设置wc
@@ -106,8 +106,8 @@ namespace space1
             setIndexOfAllLetter();
             setEndOfAllLetter();
         }
-        
-        public void buildWordList(string [] allWordList) //根据allWordList来生成wordlist
+
+        public void buildWordList(string[] allWordList) //根据allWordList来生成wordlist
         {
             foreach (string str in allWordList)
             {
@@ -168,7 +168,7 @@ namespace space1
                 }
             }
 
-            
+
             /*foreach(int i in indexOfAllLetter)
             {
                 Console.WriteLine(i);
@@ -194,15 +194,15 @@ namespace space1
         public void setEndOfAllLetter()
         {
             int a;
-            for (int i=0; i<size-1; i++)
+            for (int i = 0; i < size - 1; i++)
             {
                 a = i;
-                while (i+1<size && indexOfAllLetter[i + 1] == -1)
+                while (i + 1 < size && indexOfAllLetter[i + 1] == -1)
                 {
                     i++;
                     endOfAllLeter[i] = -1;
                 }
-                if(i + 1 < size)
+                if (i + 1 < size)
                     endOfAllLeter[a] = indexOfAllLetter[i + 1];
             }
             endOfAllLeter[size - 1] = wordList.Count;
@@ -213,22 +213,22 @@ namespace space1
             int judge = 0;
             char letterJudge = 'a';
 
-            for (int i = 0; i<26; i++)
+            for (int i = 0; i < 26; i++)
             {
                 indexOfAllLetter[i] = -1;
             }
 
-            for(int i=0; i<wordList.Count; i++)
+            for (int i = 0; i < wordList.Count; i++)
             {
-                if(wordList[i].Get_head() == letterJudge)
+                if (wordList[i].Get_head() == letterJudge)
                 {
                     indexOfAllLetter[letterJudge - 'a'] = i;
-                    while((i + 1) < wordList.Count && wordList[i+1].Get_head() == letterJudge)
+                    while ((i + 1) < wordList.Count && wordList[i + 1].Get_head() == letterJudge)
                     {
                         i++;
                     }
                     if ((i + 1) < wordList.Count)
-                        letterJudge = wordList[i+1].Get_head();
+                        letterJudge = wordList[i + 1].Get_head();
                 }
             }
         }
@@ -263,7 +263,7 @@ namespace space1
         static int order_c = 0; //-c 字母
         static int order_w = 0; //-w 单词
         static int choseCW = 0; //0:c, 1:w
-        
+
         //排序标准
         public void setHeadJudge(char x) //x 为a-z和 #
         {
@@ -303,380 +303,527 @@ namespace space1
         {
             return headJudge;
         }
-    }
 
-    class WriteFile
-    {
-        public static List<WordChain> wordChainList = new List<WordChain>(); 
-        static string writePath = null;
-    }
-
-    public class Word
-    {
-        private char head;
-        private char tail;
-        private string allWord;
-        private static int weightChosen = 0; //0代表w，1代表c
-
-        public Word(string str) //构造方法
+        //生成链的方法
+        public void buildChain(int headJudge)
         {
-            this.allWord = str;
-            this.head = str[0];
-            this.tail = str[str.Length - 1];
-        }
-        
-        public static void setWeightChosen(char cc)
-        {
-            if (cc == 'c')
+            if (headJudge == 26) //全生成
             {
-                weightChosen = 1;
-                //Console.WriteLine(weightChosen);
-            }
-        }
-
-        public int getWeight()
-        {
-            if (weightChosen == 0) return 1;
-            return this.allWord.Length;
-        }
-
-        public char Get_tail()
-        {
-            return this.tail;
-        }
-
-        public string Get_allWord()
-        {
-            return this.allWord;
-        }
-
-        public char Get_head()
-        {
-            return this.head;
-        }
-
-        public override string ToString()
-        {
-            return this.allWord;
-        }
-
-    }
-
-    public class WordChain
-    {
-        public List<Word> wordChain;
-        public int weight;
-        public static char word2end; //结束条件，头是尾不是则停止，可以是'#'
-
-        public WordChain()
-        {
-            this.weight = 0;
-            this.wordChain = new List<Word>();
-        }
-
-        public static bool buildEnd(char wHead, char wTail) //判断是否应该停止成链，这样的话，不设t就会一直返回false
-        {
-            if (word2end == wHead && word2end != wTail) return true;
-            return false;
-        }
-
-        public bool isChain() //返回这条链是否符合条件
-        {
-            if (word2end == '#') return true;
-            if (this.wordChain[this.getSize() - 1].Get_tail() == word2end) return true;
-            return false;
-        }
-
-        public void copyChain(WordChain wchain)
-        {
-            this.weight = wchain.weight;
-            this.wordChain = new List<Word>(wchain.GetWordChain().ToArray());
-        }
-
-        public char getWord2End()
-        {
-            return word2end;
-        }
-
-        public static void setWord2End(char w2end)
-        {
-            word2end = w2end;
-        }
-
-        public List<Word> GetWordChain()
-        {
-            return this.wordChain;
-        }
-
-        public void addWord(Word w)
-        {
-            this.wordChain.Add(w);
-            this.weight += w.getWeight(); //更新权重
-        }
-
-        public int getWeight()
-        {
-            return this.weight;
-        }
-
-        public int getSize()
-        {
-            return this.wordChain.Count;
-        }
-
-        public void printChain()
-        {
-            foreach(Word w in wordChain)
-            {
-                Console.Write(w+" ");
-            }
-            Console.WriteLine();
-        }
-    }
-
-    class Topo //拓扑类
-    {
-        private const int size = 26, MINI = -100000;
-        
-        public List<char> topoList = new List<char>(); //拓扑排序的结果
-        public List<char> topoListCopy = new List<char>(); //保存拓扑序列的结果
-        private static int[,] degreeGraph = new int[size,size]; //判断每个顶点的值
-        public static int[] degreeArray = new int[size]; //每个点的入度
-        private static int[] distance = new int[size]; //每个点到起点的距离， 0-25分别代表a-z
-        private static int[] selfCircle = new int[size]; //判断自环的个数
-        private static WordChain[] wordChainList = new WordChain[size]; //到达每个点权重最大的路线
-
-        public void run(char wHead, char wTail)
-        {
-            WordChain.setWord2End(wTail);
-            
-            this.initialDegreeGraph();
-            this.testHeadTail(wHead, wTail);
-            this.setDegreeArray();
-            this.topoloSort();
-            this.buildChain(wHead);
-            this.printDistance();
-        }
-
-        public void testHeadTail(char wHead, char wTail) //检测head和tail是否存在
-        {
-            int head = 0, tail = 0;
-
-            if (wHead != '#')
-            {
-                for (int i = 0; i < size; i++)
-                {
-                    if (degreeGraph[wHead - 'a', i] != 0)
-                    {
-                        head++;
-                    }
-                }
-
-                if (head == 0)
-                {
-                    Console.WriteLine("输入文件无法求解");
-                    System.Environment.Exit(0);
-                }
-            }
-
-            if(wTail!='#')
-            {   for (int i = 0; i < size; i++)
-                {
-                    if (degreeGraph[i, wTail - 'a'] != 0)
-                    {
-                        tail++;
-                    }
-                }
-
-                if (tail == 0)
-                {
-                    Console.WriteLine("输入文件无法求解");
-                    System.Environment.Exit(0);
-                }
-
-            }
-        }
-
-
-        public void initialDegreeGraph()
-        {
-
-            for (int i=0; i<size; i++)
-            {
-                degreeArray[i] = -1;
-                selfCircle[i] = 0;
-                wordChainList[i] = new WordChain();
-            }
-
-            foreach (Word w in ReadFile.wordList)
-            {
-                if (w.Get_head() == w.Get_tail()) //如果是自环
-                {
-                    selfCircle[w.Get_head() - 'a']++;
-                }
-                
-                degreeGraph[(w.Get_head() - 'a'), w.Get_tail() - 'a'] = 1;
-                degreeArray[(w.Get_head() - 'a')] = 0;  //这个地方应该有问题
-                degreeArray[(w.Get_tail() - 'a')] = 0;
-                
-            }
-        }
-
-        public void setDegreeArray() //计算入度
-        {
-            for (int i=0; i<size; i++)
-            {
-                for(int j=0; j < size; j++)
-                {
-                    if(i!=j) //统计入度时不考虑自环
-                        degreeArray[i] += degreeGraph[j, i];
-                }
-            }
-
-            
-
-        }
-
-        public void topoloSort() //拓扑排序算法
-        {
-            int j;
-            for (int i = 0; i < size; i++) //size次循环
-            {
-                j = 0;
-                while (j < size && degreeArray[j] != 0) j++;//找到入度为0的顶点
-
-                if (j == size) break;
-
-                topoList.Add((char)(j+'a'));//保存
-                degreeArray[j] = -1;// 设结点j为入度为-1，以免再次输出j
-
-                for (int k = 0; k < size; k++)//更新其他入度点
-                    if (degreeGraph[j,k] > 0)
-                        degreeArray[k]--;
-            }
-
-            judgeCircle();
-
-            topoListCopy = new List<char>(topoList.ToArray()); //将拓扑序列的结果备份
-
-            for(int i=0; i<topoList.Count; i++)
-            {
-                Console.Write(topoList[i]+" ");
-            }
-            Console.WriteLine();
-
-        }
-
-        public void judgeCircle() //判断当前topo序列是否存在环，存在则报错
-        {
-            for (int i = 0; i < size; i++)
-            {
-                if (degreeArray[i] > 0 || selfCircle[i]>1) //存在环，报错，自环超过一个的情况下，也是有环的，报错
-                {
-                    Console.WriteLine("当前文本中出现了环，错误");
-                    break;
-                }
-            }
-        }
-
-        public void buildChain(char headLetter) //当没有规定headLetter时，传入#
-        {
-            for (int i = 0; i < size; i++) //将每个点到源点的距离标为负无穷
-                distance[i] = MINI;
-            if (headLetter == '#') {
-                distance[topoList[0]-'a'] = 0; //这里应该有问题
-                for (char x = 'a'; x <= 'z'; x++)
-                {
-                    buildChain(x);
-                }
+                for (int i = 0; i < 26; i++)
+                    buildChain(i);
             }
             else
             {
-                topoList = new List<char>(topoListCopy.ToArray());
-                distance[headLetter - 'a'] = 0;
+
+            }
+        }
+
+        public void buildChain_r() //有-r的情况
+        {
+
+    class WriteFile
+        {
+            public static List<WordChain> wordChainList = new List<WordChain>();
+            static string writePath = null;
+        }
+
+        class Word
+        {
+            private char head;
+            private char tail;
+            private string allWord;
+            private static int weightChosen = 0; //0代表w，1代表c
+
+            public bool b_used; //有环图中是否被使用过的标志
+            private List<Word> afterWordlist; //后继单词列表
+
+            public Word(string str) //构造方法
+            {
+                this.allWord = str;
+                this.head = str[0];
+                this.tail = str[str.Length - 1];
+                b_used = false;
+                afterWordlist = new List<Word>();
             }
 
-            while (topoList.Count != 0) //当前拓扑序列非空（在指定起点的情况下，是否需要把之前的全清空）
+            public static void setWeightChosen(char cc)
             {
-                //取出拓扑序列的第一个点
-                char u = topoList[0];
-                topoList.RemoveAt(0);
-
-                //更新所有邻接点的距离
-                if (distance[u - 'a'] != MINI)
+                if (cc == 'c')
                 {
-                    for (int i=ReadFile.indexOfAllLetter[u-'a']; i < ReadFile.endOfAllLeter[u - 'a']; i++)
-                    {
-                        Word w = ReadFile.wordList[i];
-                        
-                        if (distance[w.Get_tail() - 'a'] < (distance[w.Get_head() - 'a'] + w.getWeight()))
-                        {
-                            if (WordChain.buildEnd(w.Get_head(), w.Get_tail())) //到达终点
-                            {
-                                //在到达终点的时候记录当前最长链和最长路长
+                    weightChosen = 1;
+                    //Console.WriteLine(weightChosen);
+                }
+            }
 
-                                //将拓扑序列清空，停止循环
-                                topoList.Clear();
-                                break;
+            public int getWeight()
+            {
+                if (weightChosen == 0) return 1;
+                return this.allWord.Length;
+            }
+
+            public char Get_tail()
+            {
+                return this.tail;
+            }
+
+            public string Get_allWord()
+            {
+                return this.allWord;
+            }
+
+            public char Get_head()
+            {
+                return this.head;
+            }
+
+            public List<Word> getAfterWordlist()
+            {
+                return afterWordlist;
+            }
+
+            public override string ToString()
+            {
+                return this.allWord;
+            }
+
+        }
+
+        class WordChain
+        {
+            private List<Word> wordChain;
+            private int weight;
+            private static char word2end; //结束条件，头是尾不是则停止，可以是'#'
+
+            public WordChain()
+            {
+                this.weight = 0;
+                this.wordChain = new List<Word>();
+            }
+
+            public static bool buildEnd(char wHead, char wTail) //判断是否应该停止成环
+            {
+                if (word2end == wHead && word2end != wTail) return true;
+                return false;
+            }
+
+            public bool isChain() //返回这条链是否符合条件
+            {
+                if (word2end == '#') return true;
+                if (this.wordChain[this.getSize() - 1].Get_tail() == word2end) return true;
+                return false;
+            }
+
+            public void copyChain(WordChain wchain)
+            {
+                this.weight = wchain.weight;
+                this.wordChain = new List<Word>(wchain.GetWordChain().ToArray());
+            }
+
+            public char getWord2End()
+            {
+                return word2end;
+            }
+
+            public static void setWord2End(char w2end)
+            {
+                word2end = w2end;
+            }
+
+            public List<Word> GetWordChain()
+            {
+                return this.wordChain;
+            }
+
+            public void addWord(Word w)
+            {
+                this.wordChain.Add(w);
+                this.weight += w.getWeight(); //更新权重
+            }
+
+            public int getWeight()
+            {
+                return this.weight;
+            }
+
+            public int getSize()
+            {
+                return this.wordChain.Count;
+            }
+
+            public void printChain()
+            {
+                foreach (Word w in wordChain)
+                {
+                    Console.Write(w + " ");
+                }
+                Console.WriteLine();
+            }
+        }
+
+        class Topo //拓扑类
+        {
+            private const int size = 26, MINI = -100000;
+
+            public List<char> topoList = new List<char>(); //拓扑排序的结果
+            private static int[,] degreeGraph = new int[size, size]; //判断每个顶点的值
+            public static int[] degreeArray = new int[size]; //每个点的入度
+            private static int[] distance = new int[size]; //每个点到起点的距离， 0-25分别代表a-z
+            private static int[] selfCircle = new int[size]; //判断自环的个数
+            private static WordChain[] wordChainList = new WordChain[size]; //到达每个点权重最大的路线
+
+            public void run(char wHead, char wTail)
+            {
+                WordChain.setWord2End(wTail);
+
+                this.initialDegreeGraph();
+                this.testHeadTail(wHead, wTail);
+                this.setDegreeArray();
+                this.topoloSort();
+                this.buildChain(wHead);
+                this.printDistance();
+            }
+
+            public void testHeadTail(char wHead, char wTail) //检测head和tail是否存在
+            {
+                int head = 0, tail = 0;
+
+                if (wHead != '#')
+                {
+                    for (int i = 0; i < size; i++)
+                    {
+                        if (degreeGraph[wHead - 'a', i] != 0)
+                        {
+                            head++;
+                        }
+                    }
+
+                    if (head == 0)
+                    {
+                        Console.WriteLine("输入文件无法求解");
+                        System.Environment.Exit(0);
+                    }
+                }
+
+                if (wTail != '#')
+                {
+                    for (int i = 0; i < size; i++)
+                    {
+                        if (degreeGraph[i, wTail - 'a'] != 0)
+                        {
+                            tail++;
+                        }
+                    }
+
+                    if (tail == 0)
+                    {
+                        Console.WriteLine("输入文件无法求解");
+                        System.Environment.Exit(0);
+                    }
+
+                }
+            }
+
+
+            public void initialDegreeGraph()
+            {
+                for (int i = 0; i < size; i++)
+                {
+                    degreeArray[i] = -1;
+                    selfCircle[i] = 0;
+                    wordChainList[i] = new WordChain();
+                }
+
+                foreach (Word w in ReadFile.wordList)
+                {
+                    if (w.Get_head() == w.Get_tail()) //如果是自环
+                    {
+                        selfCircle[w.Get_head() - 'a']++;
+                    }
+
+                    degreeGraph[(w.Get_head() - 'a'), w.Get_tail() - 'a'] = 1;
+                    degreeArray[(w.Get_head() - 'a')] = 0;  //这个地方应该有问题
+                    degreeArray[(w.Get_tail() - 'a')] = 0;
+
+                }
+            }
+
+            public void setDegreeArray() //计算入度
+            {
+                for (int i = 0; i < size; i++)
+                {
+                    for (int j = 0; j < size; j++)
+                    {
+                        if (i != j) //统计入度时不考虑自环
+                            degreeArray[i] += degreeGraph[j, i];
+                    }
+                }
+
+
+
+            }
+
+            public void topoloSort() //拓扑排序算法
+            {
+                int j;
+                for (int i = 0; i < size; i++) //size次循环
+                {
+                    j = 0;
+                    while (j < size && degreeArray[j] != 0) j++;//找到入度为0的顶点
+
+                    if (j == size) break;
+
+                    topoList.Add((char)(j + 'a'));//保存
+                    degreeArray[j] = -1;// 设结点j为入度为-1，以免再次输出j
+
+                    for (int k = 0; k < size; k++)//更新其他入度点
+                        if (degreeGraph[j, k] > 0)
+                            degreeArray[k]--;
+                }
+
+                judgeCircle();
+                for (int i = 0; i < topoList.Count; i++)
+                {
+                    Console.Write(topoList[i] + " ");
+                }
+                Console.WriteLine();
+
+            }
+
+            public void judgeCircle() //判断当前topo序列是否存在环，存在则报错
+            {
+                for (int i = 0; i < size; i++)
+                {
+                    if (degreeArray[i] > 0 || selfCircle[i] > 1) //存在环，报错，自环超过一个的情况下，也是有环的，报错
+                    {
+                        Console.WriteLine("当前文本中出现了环，错误");
+                        break;
+                    }
+                }
+            }
+
+            public void buildChain(char headLetter) //当没有规定headLetter时，传入#
+            {
+                for (int i = 0; i < size; i++) //将每个点到源点的距离标为负无穷
+                    distance[i] = MINI;
+                if (headLetter == '#') distance[topoList[0] - 'a'] = 0; //这里应该有问题
+                else distance[headLetter - 'a'] = 0;
+
+                while (topoList.Count != 0) //当前拓扑序列非空（在指定起点的情况下，是否需要把之前的全清空）
+                {
+                    //取出拓扑序列的第一个点
+                    char u = topoList[0];
+                    topoList.RemoveAt(0);
+
+                    //更新所有邻接点的距离
+                    if (distance[u - 'a'] != MINI)
+                    {
+                        for (int i = ReadFile.indexOfAllLetter[u - 'a']; i < ReadFile.endOfAllLeter[u - 'a']; i++)
+                        {
+                            Word w = ReadFile.wordList[i];
+
+                            if (distance[w.Get_tail() - 'a'] < (distance[w.Get_head() - 'a'] + w.getWeight()))
+                            {
+                                if (WordChain.buildEnd(w.Get_head(), w.Get_tail())) //到达终点
+                                {
+                                    //在到达终点的时候记录当前最长链和最长路长
+
+                                    //将拓扑序列清空，停止循环
+                                    topoList.Clear();
+                                    break;
+                                }
+
+                                distance[w.Get_tail() - 'a'] = (distance[w.Get_head() - 'a'] + w.getWeight()); //更新距离
+
+                                //更新链
+                                wordChainList[w.Get_tail() - 'a'].copyChain(wordChainList[w.Get_head() - 'a']);
+                                wordChainList[w.Get_tail() - 'a'].addWord(w);
                             }
 
-                            distance[w.Get_tail() - 'a'] = (distance[w.Get_head() - 'a'] + w.getWeight()); //更新距离
-
-                            //更新链
-                            wordChainList[w.Get_tail() - 'a'].copyChain(wordChainList[w.Get_head() - 'a']);
-                            wordChainList[w.Get_tail() - 'a'].addWord(w);
                         }
+                    }
 
+                }
+
+            }
+
+            public WordChain getLongesChain()
+            {
+                int max = 0;
+                WordChain wchain = new WordChain();
+                for (int i = 0; i < size; i++)
+                {
+                    if (wordChainList[i].getWeight() > max && wordChainList[i].isChain())
+                    {
+                        max = wordChainList[i].getWeight();
+                        wchain = wordChainList[i];
                     }
                 }
 
             }
-        
+
+            public void printDistance()
+            {
+                for (int i = 0; i < size; i++)
+                {
+                    Console.Write(distance[i] + " ");
+                    wordChainList[i].printChain(); //输出链
+                }
+                */
+            }
+
         }
 
-        public WordChain getLongesChain()
+        class WordChainProcessor
         {
-            int max = 0;
-            WordChain wchain = new WordChain();
-            for (int i = 0; i < size; i++)
+            private List<Word> rawWordList; //原始单词链
+            private List<Word> maxWordList; //最长单词、字母链
+            private bool b_wc; //w或c标识符:true-w ; false-c
+            private char c_h; //h或#标识符
+            private char c_t; //t或#标识符
+
+            public WordChainProcessor(WordChain words, char wc, char h, char t)
             {
-                if (wordChainList[i].getWeight() > max && wordChainList[i].isChain())
+                //初始化字段
+                rawWordList = words.GetWordChain();
+                maxWordList = new List<Word>();
+                if (wc == 'w') { b_wc = true; }
+                else { b_wc = false; }
+                c_h = h;
+                c_t = t;
+            }
+
+            public WordChain getResultChain()
+            {
+                //确定每个单词的后继
+                associateWords();
+
+                //对首字母的要求在这里进行处理
+                //遍历计算每个单词开头的最长单词链，并更新最长链
+                foreach (Word word in rawWordList)
                 {
-                    max = wordChainList[i].getWeight();
-                    wchain = wordChainList[i];
+                    //对首字母无要求
+                    if (c_h == '#')
+                    {
+                        List<Word> wl = calculate(word);
+                        updateMaxList(wl, maxWordList);
+                    }
+                    //若对首字母要求为c,则在遍历时，仅对首字母为c的单词进行求解
+                    else
+                    {
+                        if (word.Get_head() == c_h)
+                        {
+                            List<Word> wl = calculate(word);
+                            updateMaxList(wl, maxWordList);
+                        }
+                        else continue;
+                    }
+                }
+
+                //返回最长链
+                return new WordChain(maxWordList);
+            }
+
+            private void updateMaxList(List<Word> list, List<Word> maxlist)
+            {
+                //如果是 找最多单词 的模式
+                if (b_wc)
+                {
+                    //如果对尾字母没有要求, 或有要求并且list也满足，那么直接比较
+                    //否则List无法成为满足要求的最长链
+                    if (c_t == '#' || c_t == list.Last().Get_tail())
+                    {
+                        if (list.Count > maxlist.Count)
+                        {
+                            maxlist.Clear();
+                            maxlist.AddRange(list);
+                        }
+                    }
+                }
+                //如果是 找最多字母 的模式
+                else
+                {
+                    int num_l = 0, num_ml = 0;
+                    foreach (Word w in list)
+                    {
+                        num_l += w.Get_allWord().Length;
+                    }
+                    foreach (Word w in maxlist)
+                    {
+                        num_ml += w.Get_allWord().Length;
+                    }
+                    //如果对尾字母没有要求, 或有要求并且list也满足，那么直接比较
+                    //否则List无法成为满足要求的最长链
+                    if (c_t == '#' || c_t == list.Last().Get_tail())
+                    {
+                        if (num_l > num_ml)
+                        {
+                            maxlist.Clear();
+                            maxlist.AddRange(list);
+                        }
+                    }
                 }
             }
 
-            Console.Write(max + " ");
-            wchain.printChain();
-
-            return wchain;
-        }
-
-        public int printDistance() //输出满足条件的最长链
-        {
-            int max = 0;
-            WordChain wchain = new WordChain();
-            for (int i = 0; i < size; i++)
+            private List<Word> calculate(Word word)
             {
-                if (wordChainList[i].getWeight() > max && wordChainList[i].isChain()) 
+                //对当前访问单词设置已访问标志
+                word.b_used = true;
+                List<Word> maxWordlist = new List<Word>();
+
+                //当前访问单词没有后继单词时，返回
+                if (word.getAfterWordlist().Count == 0)
                 {
-                    max = wordChainList[i].getWeight();
-                    wchain = wordChainList[i];
+                    List<Word> al = new List<Word>();
+                    al.Add(word);
+                    updateMaxList(al, maxWordlist);
+                    word.b_used = false;
+                    return maxWordlist;
+                }
+                //当前访问单词有后继单词，继续深入遍历
+                else
+                {
+                    List<Word> al = new List<Word>();
+                    bool flag_getLoopEnd = true;
+
+                    //访问每个后继单词
+                    foreach (Word w in word.getAfterWordlist())
+                    {
+                        //如果该单词还没有访问过
+                        if (!w.b_used)
+                        {
+                            flag_getLoopEnd = false;
+                            //递归进入，求该单词的最长链
+                            al = calculate(w);
+                            al.Insert(0, word);
+                            updateMaxList(al, maxWordlist);
+
+                        }
+                    }
+                    //如果每个单词都访问过了，那说明有环，停止搜索并返回
+                    if (flag_getLoopEnd)
+                    {
+                        al.Add(word);
+                        updateMaxList(al, maxWordlist);
+                    }
+                    //清除当前单词的已访问标志
+                    word.b_used = false;
+                    //返回对于当前单词而言的最长链
+                    return maxWordlist;
                 }
             }
 
-            Console.Write(max + " ");
-            wchain.printChain();
-
-            return max;
-            
-            /*for(int i=0; i<size; i++)
+            private void associateWords()
             {
-                Console.Write(distance[i] + " ");
-                wordChainList[i].printChain(); //输出链
-            }*/
+                foreach (Word word_i in rawWordList)
+                {
+                    foreach (Word word_j in rawWordList)
+                    {
+                        if (word_i.Get_tail() == word_j.Get_head())
+                        {
+                            word_i.getAfterWordlist().Add(word_j);
+                        }
+                    }
+                }
+            }
         }
-
     }
-}
