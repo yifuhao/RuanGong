@@ -12,6 +12,7 @@ namespace space1
     {
         private static string[] getCommand()
         {
+            
             string RexStr = "[-r ]?[-h a-z ]?[-t a-z ]?-w|-c .*"; //匹配的正则表达式
             string command = Console.ReadLine();
             Regex spl_reg = new Regex(" "); //通过空格符来分割
