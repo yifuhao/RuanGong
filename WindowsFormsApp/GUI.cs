@@ -8,6 +8,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using ConsoleApp1;
+using space1;
 
 namespace WindowsFormsApp
 {
@@ -101,10 +103,9 @@ namespace WindowsFormsApp
         //“生成”按钮 单击事件
         private void button1_Click(object sender, EventArgs e)
         {
-            string textInput;
+            string textInput = "";
             if (tabPage.SelectedIndex == 0)
             {
-                textInput = "";
                 string filename = Directory.GetCurrentDirectory() + "\\" + textBox2.Text;
                 if (File.Exists(filename))
                 {
@@ -117,15 +118,20 @@ namespace WindowsFormsApp
             }
             if (textInput.Length == 0)
             {
-                textInput = "ERROR : NO INPUT !";
+                textBox5.Text = "ERROR : NO INPUT !";
+                return;
             }
             //调用ConsoleApp1项目内对应接口实现
-
-            //在此简单用输入直接当成输出
-            textOutput = textInput;
-            //测试输出
-            textBox5.Text = textOutput + " " + b_w.ToString() + " " + b_c.ToString() + " " + b_h.ToString()
-                + " " + b_t.ToString() + " " + b_r.ToString() + " " + char_h + " " + char_t;
+            textOutput = "";
+            char c_wc = b_w ? 'w' : 'c';
+            coreBuild core = new coreBuild();
+            WordChain wc = core.get_chainByLine(textInput, char_h, char_t, b_r, c_wc);
+            foreach(Word word in wc.GetWordChain())
+            {
+                textOutput += word.Get_allWord();
+            }
+            //输出指结果框
+            textBox5.Text = textOutput;
         }
 
 

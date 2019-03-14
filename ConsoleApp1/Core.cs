@@ -9,6 +9,21 @@ namespace ConsoleApp1
 {
     public class coreBuild : core //实现接口
     {
+        public WordChain get_chainByLine(string line, char head, char tail, bool enable_loop, char wc) //通过一个输入，来返回一个wordList的输出
+        {
+            ReadFile rf = new ReadFile();
+            string[] strList = rf.getListByString(line);
+            rf.buildWordList(strList);
+            if (wc == 'c')
+            {
+                return build_chain_word(strList, 0, strList, head, tail, enable_loop);
+            }
+            else
+            {
+                return build_chain_char(strList, 0, strList, head, tail, enable_loop);
+            }
+        }
+
          public int gen_chain_word(string[] words, int len, string[] result, char head, char tail, bool enable_loop)
         {
             
@@ -24,6 +39,8 @@ namespace ConsoleApp1
             if (head == '\0') head = '#';
             if (tail == '\0') tail = '#';
 
+            Word.setWeightChosen('w');
+
             if (!enable_loop) //没有-r的情况
             {
                 ReadFile readFile = new ReadFile();
@@ -31,7 +48,7 @@ namespace ConsoleApp1
                 readFile.run2();
                 Topo tp = new Topo();
                 tp.run(head, tail);
-                return tp.printDistance();
+                return tp.getLongesChain().getWeight();
             }
             else //有
             {
@@ -55,9 +72,9 @@ namespace ConsoleApp1
 
             if (head == '\0') head = '#';
             if (tail == '\0') tail = '#';
-
-
+            
             Word.setWeightChosen('c');
+
             if (!enable_loop) //没有-r的情况
             {
                 ReadFile readFile = new ReadFile();
@@ -65,17 +82,23 @@ namespace ConsoleApp1
                 readFile.run2();
                 Topo tp = new Topo();
                 tp.run(head, tail);
-                return tp.printDistance();
+                return tp.getLongesChain().getWeight();
             }
             else //有
             {
-                return 0;
+                ReadFile readFile = new ReadFile();
+                readFile.buildWordList(words);
+                WordChainProcessor wcp = new WordChainProcessor(ReadFile.GetWordChainUnDo(), 'c', head, tail);
+                WordChain wchain = wcp.getResultChain();
+                return wchain.getWeight();
             }
             throw new NotImplementedException();
         }
 
         public WordChain build_chain_word(string[] words, int len, string[] result, char head, char tail, bool enable_loop)
         {
+            Word.setWeightChosen('w');
+
             if (!enable_loop) //没有-r的情况
             {
                 ReadFile readFile = new ReadFile();
@@ -87,7 +110,11 @@ namespace ConsoleApp1
             }
             else //有
             {
-                return new WordChain();
+                ReadFile readFile = new ReadFile();
+                readFile.buildWordList(words);
+                WordChainProcessor wcp = new WordChainProcessor(ReadFile.GetWordChainUnDo(), 'w', head, tail);
+                WordChain wchain = wcp.getResultChain();
+                return wchain;
             }
             throw new NotImplementedException();
         }
@@ -95,6 +122,7 @@ namespace ConsoleApp1
         public WordChain build_chain_char(string[] words, int len, string[] result, char head, char tail, bool enable_loop)
         {
             Word.setWeightChosen('c');
+
             if (!enable_loop) //没有-r的情况
             {
                 ReadFile readFile = new ReadFile();
@@ -106,7 +134,11 @@ namespace ConsoleApp1
             }
             else //有
             {
-                return new WordChain();
+                ReadFile readFile = new ReadFile();
+                readFile.buildWordList(words);
+                WordChainProcessor wcp = new WordChainProcessor(ReadFile.GetWordChainUnDo(), 'c', head, tail);
+                WordChain wchain = wcp.getResultChain();
+                return wchain;
             }
             throw new NotImplementedException();
         }

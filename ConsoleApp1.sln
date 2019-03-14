@@ -4,9 +4,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp1", "ConsoleApp1\ConsoleApp1.csproj", "{D8C9C62D-C18C-4389-93AA-1449C0C7924F}"
-	ProjectSection(ProjectDependencies) = postProject
-		{1DD3E43F-1ACB-4BFB-B5AE-A74026B8053D} = {1DD3E43F-1ACB-4BFB-B5AE-A74026B8053D}
-	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsFormsApp", "WindowsFormsApp\WindowsFormsApp.csproj", "{1DD3E43F-1ACB-4BFB-B5AE-A74026B8053D}"
 EndProject
