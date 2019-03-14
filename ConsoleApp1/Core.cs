@@ -11,18 +11,18 @@ namespace ConsoleApp1
     {
          public int gen_chain_word(string[] words, int len, string[] result, char head, char tail, bool enable_loop)
         {
-            try
+            
+            if (!((head <= 'z' && head >= 'a') || (head == '\0')))
             {
-                if (!((head <= 'z' && head >= 'a') || (head == '0')))
-                {
-                    throw new Exception("首字母不符合规范");
-                }
+                throw new Exception("首字母不符合规范");
             }
-            catch (Exception e)
+            if (!((tail <= 'z' && tail >= 'a') || (tail == '\0')))
             {
-
+                throw new Exception("尾字母不符合规范");
             }
 
+            if (head == '\0') head = '#';
+            if (tail == '\0') tail = '#';
 
             if (!enable_loop) //没有-r的情况
             {
@@ -35,11 +35,28 @@ namespace ConsoleApp1
             }
             else //有
             {
-                return 0;
+                ReadFile readFile = new ReadFile();
+                readFile.buildWordList(words);
+                WordChainProcessor wcp = new WordChainProcessor(ReadFile.GetWordChainUnDo(), 'w', head, tail);
+                WordChain wchain = wcp.getResultChain();
+                return wchain.getWeight();
             }
         }
         public int gen_chain_char(string[] words, int len, string[] result, char head, char tail, bool enable_loop)
         {
+            if (!((head <= 'z' && head >= 'a') || (head == '\0')))
+            {
+                throw new Exception("首字母不符合规范");
+            }
+            if (!((tail <= 'z' && tail >= 'a') || (tail == '\0')))
+            {
+                throw new Exception("尾字母不符合规范");
+            }
+
+            if (head == '\0') head = '#';
+            if (tail == '\0') tail = '#';
+
+
             Word.setWeightChosen('c');
             if (!enable_loop) //没有-r的情况
             {
