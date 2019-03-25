@@ -1,83 +1,88 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 
 namespace space1
 {
     class main
     {
-        /*private static string[] getCommand()
+
+        static void Main(String[] args)
         {
-            string RexStr = "[-r ]?[-h a-z ]?[-t a-z ]?-w|-c .*"; //匹配的正则表达式
-            string command = Console.ReadLine();
-            Regex spl_reg = new Regex(" "); //通过空格符来分割
-            string[] str = spl_reg.Split(command);
-            string[] str2return = new string[5];
-            int rCount = 0, hCount = 0, tCount = 0, wcCount = 0, i = 0;
+            int argc = args.Length;
+            string[] command = new string[5];
 
-            str2return[1] = "#";
-            str2return[2] = "#";
+            command[1] = "#";
+            command[2] = "#";
 
-            if (!Regex.IsMatch(command, RexStr)) //如果匹配正则表达式则继续，否则报错并结束程序
+            bool judge = true; //true时不报错
+            if (args[argc - 2] == "-w" || args[argc - 2] == "-c") //检测
             {
-                Console.WriteLine("命令输入不规范");
-                System.Environment.Exit(0);
+                command[3] = args[argc - 2];
+            }
+            else
+            {
+                judge = false;
             }
 
-            str2return[0] = str[0] == "-r" ? "a" : "b";
+            command[4] = args[argc - 1];
 
-            for (i = 0; i < str.Count(); i++)
+            if (args[0] == "-r") command[0] = "a";
+            else command[0] = "b";
+
+            for (int i = 0; i < argc - 1; i++)
             {
-                if (str[i] == "-r")
+                if (args[i] == "-h")
                 {
-                    rCount++;
-                }
-
-                if (str[i] == "-h")
-                {
-                    hCount++;
-                    str2return[1] = str[i + 1];
-                }
-
-                if (str[i] == "-t")
-                {
-                    tCount++;
-                    str2return[2] = str[i + 1];
-                }
-
-                if (str[i] == "-w" || str[i] == "-c")
-                {
-                    wcCount++;
-                    str2return[3] = str[i];
-                    if (i != str.Count() - 2) //
+                    if (args[i + 1][0] <= 'z' && args[i + 1][0] >= 'a')
                     {
-                        Console.WriteLine("命令输入不规范");
-                        System.Environment.Exit(0);
+                        command[1] = args[i + 1];
+                    }
+                    else
+                    {
+                        judge = false;
+                    }
+                }
+                if (args[i] == "-t")
+                {
+                    if (args[i + 1][0] <= 'z' && args[i + 1][0] >= 'a')
+                    {
+                        command[2] = args[i + 1];
+                    }
+                    else
+                    {
+                        judge = false;
                     }
                 }
             }
 
-            str2return[4] = str[i - 1];
-
-            /*foreach(string item in str2return)
-            {
-                Console.WriteLine(item);
-            }
-
-            return str2return;
-        }*/
 
 
-        static void Main(String[] args)
-        {
-            /*string[] command = getCommand();
+
             ReadFile rf = new ReadFile();
-            rf.run(command[4]);
-            Word.setWeightChosen(command[3][1]); //设置wc
-            Topo tp = new Topo();
-            tp.run(command[1][0], command[2][0]); //头尾和权重
-            */
+            if (command[0][0] == 'a')
+            {
+                ReadFile readFile = new ReadFile();
+                rf.run(command[4]);
+                Word.setWeightChosen(command[3][1]); //设置wc
+
+                WordChainProcessor wcp = new WordChainProcessor(ReadFile.GetWordChainUnDo(), command[3][1], command[1][0], command[2][0]);
+                WordChain wchain = wcp.getResultChain();
+                WriteFile wf = new WriteFile();
+                wf.printChain(wchain);
+            }
+            else
+            {
+                rf.run(command[4]);
+                Word.setWeightChosen(command[3][1]); //设置wc
+                Topo tp = new Topo();
+                tp.run(command[1][0], command[2][0]); //头尾和权重
+                WriteFile wf = new WriteFile();
+                wf.printChain(Topo.getLongesChain());
+            }
         }
     }
 
@@ -355,11 +360,26 @@ namespace space1
     }*/
 
 
-    /*class WriteFile
+    class WriteFile
     {
         public static List<WordChain> wordChainList = new List<WordChain>();
-        static string writePath = null;
-    }*/
+        static string writePath = "solution.txt";
+        StreamWriter fs = new StreamWriter(writePath);
+
+        public void printChain(WordChain wchain)
+        {
+            while (wchain.getSize() != 0)
+            {
+                Word w = wchain.wordChain[0];
+                wchain.wordChain.RemoveAt(0);
+                fs.Write(w.Get_allWord()+" ");
+            }
+
+            fs.Close();
+        }
+
+
+    }
 
     public class Word
     {
@@ -428,7 +448,7 @@ namespace space1
 
     public class WordChain
     {
-        private List<Word> wordChain;
+        public List<Word> wordChain;
         private int weight;
         private static char word2end; //结束条件，头是尾不是则停止，可以是'#'
 
@@ -701,12 +721,10 @@ namespace space1
 
                     }
                 }
-
             }
-
         }
 
-        public WordChain getLongesChain()
+        public static WordChain getLongesChain()
         {
             int max = 0;
             WordChain wchain = new WordChain();
@@ -720,8 +738,6 @@ namespace space1
             }
             return wchain;
         }
-
-        
     }
 
     class WordChainProcessor
@@ -809,10 +825,6 @@ namespace space1
                 }
                 //如果对尾字母没有要求, 或有要求并且list也满足，那么直接比较
                 //否则List无法成为满足要求的最长链
-                if (list.Count == 0)
-                {
-                    return;
-                }
                 if (c_t == '#' || c_t == list.Last().Get_tail())
                 {
                     if (num_l > num_ml)
